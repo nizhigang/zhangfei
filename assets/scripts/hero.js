@@ -1,9 +1,5 @@
+var HEROSTATE=require("HEROSTATE");
 
-var HEROSTATE = cc.Enum({
-    NORMAL: 0,
-    DOWN:1,
-    DEAD: 2,
-});
 cc.Class({
     extends: cc.Component,
 
@@ -26,10 +22,10 @@ cc.Class({
             type:cc.Node,
             tooltip: "画板组件",
         },
-        draw:{
+        touchNode:{
             default: null,
             type:cc.Node,
-            tooltip: "画板组件",
+            tooltip: "触摸板，触摸此节点，触发触摸事件",
         },
     },
 
@@ -39,12 +35,13 @@ cc.Class({
         this.state=HEROSTATE.DOWN;
         this.drawComponent=this.draw.getComponent("draw");
         this.drawSpeed= this.drawComponent.ladderSpeed;
-        this.drawWidthHalf=this.draw.width/2;
+        this.touchNodeWidthHalf=this.touchNode.width/2;
 
         this.leftDirection=false;
         this.rightDirection=false;
-        this.draw.on('touchstart', function (event) {
-            let drawX=event.getLocationX();
+        
+        this.touchNode.on('touchstart', function (event) {
+            let drawX=event.getLocationX()-this.touchNodeWidthHalf;
             if(this.node.x>drawX){
                 this.leftDirection=true;
                 this.rightDirection=false;
@@ -53,20 +50,20 @@ cc.Class({
                 this.rightDirection=true;
             }
         }, this);
+        
     },
     //开始碰撞
     onCollisionEnter: function (other, self) {
-        cc.log("hero hit");
+        
         this.state=HEROSTATE.NORMAL;
     },
     //碰撞结束
     onCollisionExit: function (other, self) {
-        console.log('on collision exit');
+       
         this.state=HEROSTATE.DOWN;
     },
 
     start () {
-
     },
 
     update (dt) {
@@ -76,12 +73,14 @@ cc.Class({
             this.speedX = 0;
         }else if(this.leftDirection && !this.rightDirection){
             this.speedX = -this.moveSpeed;
+            if((this.node.x-this.node.width/2)<-this.touchNodeWidthHalf){
+                this.speedX =0;
+            }
         }else if(!this.leftDirection && this.rightDirection){
             this.speedX = this.moveSpeed;
-        }
-
-        if((Math.abs(this.node.x)+this.node.width/2)>this.drawWidthHalf){
-            this.node.x =this.drawWidthHalf;
+            if((this.node.x+this.node.width/2)>this.touchNodeWidthHalf){
+                this.speedX =0;
+            }
         }
         
         this.node.x += this.speedX * dt;                    //左右移动

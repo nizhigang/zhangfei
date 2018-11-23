@@ -21,15 +21,19 @@ cc.Class({
             default: 200,
             tooltip: "梯子之间的间隔",
         },
+        ladderRecovery:{
+            default:null,
+            type: cc.Node,
+            tooltip: "梯子回收器",
+        },
     },
     
     onLoad () {
-        this.drawWidth=this.node.getParent().width;
-        
-
+        this.touchNodeWidth=this.node.getParent().width;
+        this.ladderRecovery.getComponent("ladder_recovery").game=this;
         //创建几个node池
         this.currentLadderY=0;
-        this.ladder_putongPool=new  cc.NodePool();
+        this.ladder_putongPool=new cc.NodePool();
         for(var i = 0; i < 8; i++){
             this.ladder_putongPool.put(cc.instantiate(this.ladderPutong));
         }
@@ -39,9 +43,10 @@ cc.Class({
         }
 
     },
-
+    
     //新的梯子
     newLadder(isFIrst){
+        cc.log("nzg===>pool中个数"+this.ladder_putongPool.size());
         this.currentLadderY-=this.ladderInterval;
         var ladder;
         if(this.ladder_putongPool.size()>0){
@@ -52,7 +57,7 @@ cc.Class({
         this.node.addChild(ladder);
         var stairX = 0;
         if(!isFIrst){
-            stairX = Math.random()*this.drawWidth -this.drawWidth/2;
+            stairX = Math.random()*this.touchNodeWidth -this.touchNodeWidth/2;
             if(stairX<0){
                 stairX+=ladder.width/2;
             }else{
@@ -68,6 +73,7 @@ cc.Class({
 
     },
 
+   
     update (dt) {
         this.node.y+=dt*this.ladderSpeed;
     },
