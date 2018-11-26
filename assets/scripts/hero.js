@@ -1,5 +1,5 @@
 var HEROSTATE=require("HEROSTATE");
-
+var tagConfig=require("tagConfig");
 cc.Class({
     extends: cc.Component,
 
@@ -16,6 +16,10 @@ cc.Class({
         gravitySpeed:{
             default: 0,
             tooltip: "重力加速度系数",
+        },
+        rightJiaSpeed: {
+            default: 0,
+            tooltip: "向右速度",
         },
         draw:{
             default: null,
@@ -36,6 +40,7 @@ cc.Class({
         this.drawComponent=this.draw.getComponent("draw");
         this.drawSpeed= this.drawComponent.ladderSpeed;
         this.touchNodeWidthHalf=this.touchNode.width/2;
+        this.top=this.drawComponent.top.getComponent("top");
 
         this.leftDirection=false;
         this.rightDirection=false;
@@ -50,16 +55,45 @@ cc.Class({
                 this.rightDirection=true;
             }
         }, this);
+
+        this.touchNode.on('touchend', function (event) {
+            this.leftDirection=false;
+            this.rightDirection=false;
+        }, this);
+        
         
     },
     //开始碰撞
     onCollisionEnter: function (other, self) {
         
-        this.state=HEROSTATE.NORMAL;
+        if(other.tag==tagConfig.ladder_putong &&self.tag==tagConfig.hero_bottom){
+            this.state=HEROSTATE.NORMAL;
+            this.drawComponent.cengshu++;
+        }else if(other.tag==tagConfig.ladder_ci){
+            this.top.iconNums--;            //硬币数量
+            if(this.top.iconNums<0){
+                this.state=HEROSTATE.DEAD;
+            }else{
+                this.top.setProBar(this.top.iconNums);
+                this.state=HEROSTATE.DOWN;
+            }
+        } else if(other.tag==tagConfig.ladder_zuogundong){
+            this.rightJiaSpeed=-100;
+        }else if(other.tag==tagConfig.ladder_yougundong){
+            this.rightJiaSpeed=100;
+        }else if(other.tag==tagConfig.ladder_mu){
+
+            other.getComponent(cc.Animation).play()
+
+        }else if(other.tag==tagConfig.ladder_tiao){
+
+        }
+
+        this.top.setCengshu(this.drawComponent.cengshu);
+        
     },
     //碰撞结束
     onCollisionExit: function (other, self) {
-       
         this.state=HEROSTATE.DOWN;
     },
 
@@ -87,9 +121,11 @@ cc.Class({
         
         if(this.state==HEROSTATE.DOWN){                     //降落
             this.downSpeed+=this.gravitySpeed*dt
-            this.node.y-=this.downSpeed*dt;
+            this.node.y-=(this.downSpeed+this.drawSpeed)*dt;
         }else if(this.state==HEROSTATE.NORMAL){             //梯子上
-            this.node.y+=this.drawSpeed*dt;
+            
+            //this.node.y+=this.drawSpeed*dt;
+
         }
     },
 });

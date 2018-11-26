@@ -12,35 +12,21 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        hero_head:{
-            default:null,
-            type:cc.Sprite
-        },
-        probar:{
-            default:null,
-            type:cc.ProgressBar
-        },
-        cur_ladder:{default:null,type:cc.Label},
-        max_ladder:{default:null,type:cc.Label},
-        iconNums:3,
+        muanim:{
+            defalut:null,
+            type:cc.Animation
+        }
     },
 
+    // LIFE-CYCLE CALLBACKS:
+
     onLoad () {
-        this.leaveIcon=this.iconNums;
+        this.animCtrl.on('stop', this.onAnimStop, this);
     },
 
     start () {
 
     },
 
-    //设置当前层数
-    setCengshu(num){
-        this.cur_ladder.string=num;
-    },
-
-    //设置进度条
-    setProBar(leaveIcon){
-        this.probar.progress=leaveIcon/this.iconNums;
-    },
     // update (dt) {},
 });

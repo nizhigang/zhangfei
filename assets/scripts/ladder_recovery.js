@@ -7,7 +7,7 @@
 // Learn life-cycle callbacks:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/en/scripting/life-cycle-callbacks.html
-
+var tagConfig=require("tagConfig");
 cc.Class({
     extends: cc.Component,
 
@@ -39,9 +39,10 @@ cc.Class({
 
     //开始碰撞
     onCollisionEnter: function (other, self) {
-        cc.log("nzg===>碰撞开始回收啦");
-        this.game.ladder_putongPool.put(other.node);
-        this.game.newLadder();
+        if(other.tag!=tagConfig.hero&&self.tag==tagConfig.recovery){
+            this.game.ladder_putongPool.put(other.node);
+            this.game.newLadder();
+        }
     },
 
     // update (dt) {},
